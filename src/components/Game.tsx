@@ -33,6 +33,7 @@ export default function Game(): JSX.Element {
   const [isGameOver, setIsGameOver] = React.useState<boolean>(false);
   const [isPaused, setIsPaused] = React.useState<boolean>(false);
   const [score, setScore] = React.useState<number>(0);
+  const [scoresFinal, setScoresFinal] = React.useState<number[]>([]);
 
   React.useEffect(() => {
     if (!isGameOver) {
@@ -50,6 +51,9 @@ export default function Game(): JSX.Element {
     // game over
     if (checkGameOver(snakeHead, GAME_BOUNDS)) {
       setIsGameOver((prev) => !prev);
+
+      // Met à jour les scores
+      updateScores(score);
       return;
     }
 
@@ -80,6 +84,20 @@ export default function Game(): JSX.Element {
       // grow snake
       setSnake([newHead, ...snake.slice(0, -1)]);
     }
+  };
+
+  const updateScores = (currentScore: number) => {
+    // Ajout du nouveau score à la liste des scores
+    const updatedScores = [...scoresFinal, currentScore];
+
+    // Triez les scores par ordre décroissant
+    updatedScores.sort((a, b) => b - a);
+
+    // Sélectionnez les trois meilleurs scores
+    const topThreeScores = updatedScores.slice(0, 3);
+
+    // Met à jour l'état des scores
+    setScoresFinal(topThreeScores);
   };
 
   const handleGesture = (event: GestureEventType) => {
@@ -137,6 +155,12 @@ export default function Game(): JSX.Element {
             <Text style={styles.gameOverText}>
               Game Over !!! Push Reload button to play again 🐍
             </Text>
+            <Text style={styles.scoresTitle}>Top 3 Scores:</Text>
+            {scoresFinal.map((s, index) => (
+              <Text key={index} style={styles.scoreItem}>
+                {index + 1}. {s}
+              </Text>
+            ))}
           </View>
         ) : (
           <View style={styles.boundaries}>
@@ -173,6 +197,19 @@ const styles = StyleSheet.create({
   gameOverText: {
     fontSize: 24,
     fontWeight: "bold",
+    color: Colors.primary,
+  },
+  scoresTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginTop: 20,
     color: Colors.secondary,
+  },
+
+  scoreItem: {
+    fontSize: 20,
+    marginVertical: 8,
+    fontWeight: "bold",
+    color: Colors.tertiary,
   },
 });
